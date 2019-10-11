@@ -16,8 +16,18 @@ class ThirdRail:
             self.routes[route] = args[0]
         return decorated
 
-    def start(self, port):
-        logger.info(f'Listening on port {port}...')
-        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        serversocket.bind((socket.gethostname(), port))
-        serversocket.listen(5)
+    # The __call__ method implements WSGI described in PEP-333.
+    def __call__(self, environ, start_response):
+        path = environ['PATH_INFO']
+        if path in self.routes:
+            body, status = self.routes[path]()
+        else:
+            status = '404 Not Found'
+            body = ''
+
+        response_headers = [('Content-type', 'text/plain')]
+        start_response(status, response_headers)
+
+        if not isinstance(body, bytes):
+            body = body.encode('utf-8')
+        return [body]
