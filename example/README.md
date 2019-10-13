@@ -6,5 +6,5 @@ pip install -e .
 ```
 ## Usage
 ```
-gunicorn --workers=1 server:app
+gunicorn server:app
 ```
